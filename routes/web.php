@@ -207,3 +207,73 @@ Route::middleware('session.auth')->group(function () {
         return view('questions.show', compact('question'));
     })->name('questions.show');
 });
+
+// Admin Routes
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    // Admin Dashboard
+    Route::get('/', function () {
+        // Sample admin data (in a real app, this would come from database)
+        $stats = [
+            'total_users' => 1247,
+            'active_users' => 892,
+            'total_questions' => 15634,
+            'total_documents' => 3421,
+            'questions_today' => 156,
+            'new_users_today' => 23,
+            'server_uptime' => '99.9%',
+            'storage_used' => '67%'
+        ];
+
+        $recentUsers = [
+            ['id' => 1, 'name' => 'John Smith', 'email' => 'john@example.com', 'created_at' => now()->subHours(2), 'status' => 'active'],
+            ['id' => 2, 'name' => 'Sarah Johnson', 'email' => 'sarah@example.com', 'created_at' => now()->subHours(5), 'status' => 'active'],
+            ['id' => 3, 'name' => 'Mike Wilson', 'email' => 'mike@example.com', 'created_at' => now()->subHours(8), 'status' => 'pending'],
+            ['id' => 4, 'name' => 'Emily Davis', 'email' => 'emily@example.com', 'created_at' => now()->subDay(), 'status' => 'active'],
+            ['id' => 5, 'name' => 'David Brown', 'email' => 'david@example.com', 'created_at' => now()->subDays(2), 'status' => 'inactive'],
+        ];
+
+        $recentActivity = [
+            ['user' => 'John Smith', 'action' => 'Created question set', 'details' => 'Machine Learning Basics', 'time' => now()->subMinutes(15)],
+            ['user' => 'Sarah Johnson', 'action' => 'Uploaded document', 'details' => 'data_science.pdf', 'time' => now()->subMinutes(32)],
+            ['user' => 'Mike Wilson', 'action' => 'Registered account', 'details' => 'New user signup', 'time' => now()->subHours(1)],
+            ['user' => 'Emily Davis', 'action' => 'Generated questions', 'details' => '25 questions from React documentation', 'time' => now()->subHours(2)],
+            ['user' => 'David Brown', 'action' => 'Updated profile', 'details' => 'Changed notification settings', 'time' => now()->subHours(3)],
+        ];
+
+        $systemHealth = [
+            ['service' => 'Web Server', 'status' => 'healthy', 'uptime' => '99.9%', 'response_time' => '45ms'],
+            ['service' => 'Database', 'status' => 'healthy', 'uptime' => '99.8%', 'response_time' => '12ms'],
+            ['service' => 'File Storage', 'status' => 'healthy', 'uptime' => '99.9%', 'response_time' => '23ms'],
+            ['service' => 'AI Service', 'status' => 'warning', 'uptime' => '98.5%', 'response_time' => '156ms'],
+            ['service' => 'Email Service', 'status' => 'healthy', 'uptime' => '99.7%', 'response_time' => '89ms'],
+        ];
+
+        return view('admin.dashboard', compact('stats', 'recentUsers', 'recentActivity', 'systemHealth'));
+    })->name('dashboard');
+
+    // Users Management
+    Route::get('/users', function () {
+        $users = [
+            ['id' => 1, 'name' => 'John Smith', 'email' => 'john@example.com', 'role' => 'user', 'status' => 'active', 'created_at' => now()->subDays(30), 'last_login' => now()->subHours(2), 'questions_count' => 45],
+            ['id' => 2, 'name' => 'Sarah Johnson', 'email' => 'sarah@example.com', 'role' => 'user', 'status' => 'active', 'created_at' => now()->subDays(25), 'last_login' => now()->subHours(5), 'questions_count' => 32],
+            ['id' => 3, 'name' => 'Mike Wilson', 'email' => 'mike@example.com', 'role' => 'user', 'status' => 'pending', 'created_at' => now()->subHours(8), 'last_login' => null, 'questions_count' => 0],
+            ['id' => 4, 'name' => 'Emily Davis', 'email' => 'emily@example.com', 'role' => 'moderator', 'status' => 'active', 'created_at' => now()->subDays(60), 'last_login' => now()->subDay(), 'questions_count' => 128],
+            ['id' => 5, 'name' => 'David Brown', 'email' => 'david@example.com', 'role' => 'user', 'status' => 'inactive', 'created_at' => now()->subDays(90), 'last_login' => now()->subWeek(), 'questions_count' => 12],
+            ['id' => 6, 'name' => 'Lisa Anderson', 'email' => 'lisa@example.com', 'role' => 'user', 'status' => 'active', 'created_at' => now()->subDays(15), 'last_login' => now()->subHours(12), 'questions_count' => 67],
+            ['id' => 7, 'name' => 'Tom Garcia', 'email' => 'tom@example.com', 'role' => 'user', 'status' => 'active', 'created_at' => now()->subDays(45), 'last_login' => now()->subHours(1), 'questions_count' => 89],
+            ['id' => 8, 'name' => 'Anna Martinez', 'email' => 'anna@example.com', 'role' => 'user', 'status' => 'suspended', 'created_at' => now()->subDays(20), 'last_login' => now()->subDays(3), 'questions_count' => 23],
+        ];
+
+        return view('admin.users', compact('users'));
+    })->name('users');
+
+    // System Settings
+    Route::get('/settings', function () {
+        return view('admin.settings');
+    })->name('settings');
+
+    // Analytics
+    Route::get('/analytics', function () {
+        return view('admin.analytics');
+    })->name('analytics');
+});
