@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'session.auth' => \App\Http\Middleware\SessionAuth::class,
+            'session.guest' => \App\Http\Middleware\SessionGuest::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
