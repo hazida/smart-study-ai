@@ -6,6 +6,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -13,14 +16,44 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * The primary key for the model.
+     * Using standard 'id' for Laravel authentication compatibility
+     */
+    protected $primaryKey = 'id';
+
+    /**
+     * Indicates if the model's ID is auto-incrementing.
+     */
+    public $incrementing = true;
+
+    /**
+     * The data type of the auto-incrementing ID.
+     */
+    protected $keyType = 'int';
+
+    /**
+     * Get the route key for the model.
+     * Use user_id for routes to maintain UUID-based routing
+     */
+    public function getRouteKeyName()
+    {
+        return 'user_id';
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
+        'user_id',
+        'username',
         'name',
         'email',
         'password',
+        'role',
+        'is_active',
+        'last_login_at',
     ];
 
     /**
@@ -43,6 +76,89 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
+            'last_login_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the user's profile.
+     */
+    public function profile(): HasOne
+    {
+        return $this->hasOne(UserProfile::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get the user's notes.
+     */
+    public function notes(): HasMany
+    {
+        return $this->hasMany(Note::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get the user's questions.
+     */
+    public function questions(): HasMany
+    {
+        return $this->hasMany(Question::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get the user's feedback.
+     */
+    public function feedback(): HasMany
+    {
+        return $this->hasMany(Feedback::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get the subjects associated with the user.
+     */
+    public function subjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class, 'user_subjects', 'user_id', 'subject_id', 'user_id', 'subject_id')
+                    ->withPivot('role_in_subject', 'level');
+    }
+
+    /**
+     * Check if user has a specific role.
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
+
+    /**
+     * Check if user is admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    /**
+     * Check if user is teacher.
+     */
+    public function isTeacher(): bool
+    {
+        return $this->hasRole('teacher');
+    }
+
+    /**
+     * Check if user is student.
+     */
+    public function isStudent(): bool
+    {
+        return $this->hasRole('student');
+    }
+
+    /**
+     * Check if user is parent.
+     */
+    public function isParent(): bool
+    {
+        return $this->hasRole('parent');
     }
 }

@@ -7,6 +7,44 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Admin Access Test Route
+Route::get('/admin-test', function () {
+    return view('admin-access-test');
+})->name('admin.test');
+
+// Debug Authentication Route
+Route::get('/debug-auth', function () {
+    $data = [
+        'laravel_auth_check' => auth()->check(),
+        'laravel_auth_user' => auth()->user(),
+        'session_has_user' => session()->has('user'),
+        'session_user' => session()->get('user'),
+        'session_id' => session()->getId(),
+        'all_session_data' => session()->all(),
+    ];
+
+    return response()->json($data, 200, [], JSON_PRETTY_PRINT);
+})->name('debug.auth');
+
+// Quick Login Test Route
+Route::get('/quick-login', function () {
+    $credentials = ['email' => 'admin@questioncraft.com', 'password' => 'password'];
+
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
+        session()->put('user', [
+            'id' => $user->user_id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role
+        ]);
+
+        return redirect('/admin-test')->with('success', 'Logged in successfully as ' . $user->name);
+    } else {
+        return redirect('/admin-test')->with('error', 'Login failed');
+    }
+})->name('quick.login');
+
 // Authentication Routes
 Route::middleware('session.guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -209,16 +247,23 @@ Route::middleware('session.auth')->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
     // Admin Dashboard
     Route::get('/', function () {
-        // Sample admin data (in a real app, this would come from database)
+        // Enhanced admin dashboard data (in a real app, this would come from database)
         $stats = [
             'total_users' => 1247,
             'active_users' => 892,
+            'users_growth' => 12.5,
             'total_questions' => 15634,
-            'total_documents' => 3421,
             'questions_today' => 156,
+            'questions_week' => 1834,
+            'total_documents' => 3421,
+            'documents_processing' => 23,
+            'processing_rate' => 94.2,
+            'monthly_revenue' => 24750,
+            'revenue_growth' => 18.3,
+            'revenue_target' => 30000,
             'new_users_today' => 23,
             'server_uptime' => '99.9%',
             'storage_used' => '67%'
@@ -233,11 +278,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         ];
 
         $recentActivity = [
-            ['user' => 'John Smith', 'action' => 'Created question set', 'details' => 'Machine Learning Basics', 'time' => now()->subMinutes(15)],
-            ['user' => 'Sarah Johnson', 'action' => 'Uploaded document', 'details' => 'data_science.pdf', 'time' => now()->subMinutes(32)],
-            ['user' => 'Mike Wilson', 'action' => 'Registered account', 'details' => 'New user signup', 'time' => now()->subHours(1)],
-            ['user' => 'Emily Davis', 'action' => 'Generated questions', 'details' => '25 questions from React documentation', 'time' => now()->subHours(2)],
-            ['user' => 'David Brown', 'action' => 'Updated profile', 'details' => 'Changed notification settings', 'time' => now()->subHours(3)],
+            ['user' => 'John Smith', 'action' => 'Created question set', 'details' => 'Machine Learning Basics', 'time' => now()->subMinutes(15), 'type' => 'question'],
+            ['user' => 'Sarah Johnson', 'action' => 'Uploaded document', 'details' => 'data_science.pdf', 'time' => now()->subMinutes(32), 'type' => 'document'],
+            ['user' => 'Mike Wilson', 'action' => 'Registered account', 'details' => 'New user signup', 'time' => now()->subHours(1), 'type' => 'user'],
+            ['user' => 'Emily Davis', 'action' => 'Generated questions', 'details' => '25 questions from React documentation', 'time' => now()->subHours(2), 'type' => 'question'],
+            ['user' => 'David Brown', 'action' => 'Updated profile', 'details' => 'Changed notification settings', 'time' => now()->subHours(3), 'type' => 'user'],
+            ['user' => 'Lisa Anderson', 'action' => 'Uploaded document', 'details' => 'react_tutorial.pdf', 'time' => now()->subHours(4), 'type' => 'document'],
         ];
 
         $systemHealth = [
@@ -246,9 +292,51 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
             ['service' => 'File Storage', 'status' => 'healthy', 'uptime' => '99.9%', 'response_time' => '23ms'],
             ['service' => 'AI Service', 'status' => 'warning', 'uptime' => '98.5%', 'response_time' => '156ms'],
             ['service' => 'Email Service', 'status' => 'healthy', 'uptime' => '99.7%', 'response_time' => '89ms'],
+            ['service' => 'Cache Server', 'status' => 'healthy', 'uptime' => '99.6%', 'response_time' => '8ms'],
         ];
 
-        return view('admin.dashboard', compact('stats', 'recentUsers', 'recentActivity', 'systemHealth'));
+        // Chart data for user growth and question generation
+        $chartData = [
+            'user_growth' => [
+                'Mon' => 45,
+                'Tue' => 52,
+                'Wed' => 38,
+                'Thu' => 61,
+                'Fri' => 73,
+                'Sat' => 29,
+                'Sun' => 41,
+            ],
+            'questions_generated' => [
+                'Mon' => 234,
+                'Tue' => 287,
+                'Wed' => 195,
+                'Thu' => 342,
+                'Fri' => 398,
+                'Sat' => 156,
+                'Sun' => 223,
+            ],
+        ];
+
+        // Performance metrics
+        $performance = [
+            'cpu' => 34,
+            'memory' => 67,
+            'disk' => 45,
+            'network' => 23,
+            'database' => 28,
+        ];
+
+        // Quick stats
+        $quickStats = [
+            'online_users' => 127,
+            'avg_session' => '8m 32s',
+            'bounce_rate' => 23,
+            'conversion_rate' => 4.7,
+            'mrr' => 24.8,
+            'support_tickets' => 3,
+        ];
+
+        return view('admin.dashboard', compact('stats', 'recentUsers', 'recentActivity', 'systemHealth', 'chartData', 'performance', 'quickStats'));
     })->name('dashboard');
 
     // Users Management
@@ -276,4 +364,62 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/analytics', function () {
         return view('admin.analytics');
     })->name('analytics');
+
+    // Dashboard alias route
+    Route::get('/dashboard', function () {
+        return view('admin.main-dashboard');
+    })->name('dashboard');
+});
+
+// Enhanced Admin CRUD Routes (protected by admin middleware)
+Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Enhanced Admin Dashboard
+    Route::get('/enhanced-dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('enhanced.dashboard');
+    Route::get('/system-health', [App\Http\Controllers\Admin\DashboardController::class, 'systemHealth'])->name('system-health');
+    Route::get('/export-data', [App\Http\Controllers\Admin\DashboardController::class, 'exportData'])->name('export-data');
+
+    // User Management CRUD
+    Route::resource('users-crud', App\Http\Controllers\Admin\UserController::class)->names([
+        'index' => 'users-crud.index',
+        'create' => 'users-crud.create',
+        'store' => 'users-crud.store',
+        'show' => 'users-crud.show',
+        'edit' => 'users-crud.edit',
+        'update' => 'users-crud.update',
+        'destroy' => 'users-crud.destroy',
+    ]);
+    Route::patch('users-crud/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users-crud.toggle-status');
+
+    // Subject Management CRUD
+    Route::resource('subjects', App\Http\Controllers\Admin\SubjectController::class);
+    Route::get('subjects/{subject}/statistics', [App\Http\Controllers\Admin\SubjectController::class, 'statistics'])->name('subjects.statistics');
+
+    // Note Management CRUD
+    Route::resource('notes-crud', App\Http\Controllers\Admin\NoteController::class)->names([
+        'index' => 'notes-crud.index',
+        'create' => 'notes-crud.create',
+        'store' => 'notes-crud.store',
+        'show' => 'notes-crud.show',
+        'edit' => 'notes-crud.edit',
+        'update' => 'notes-crud.update',
+        'destroy' => 'notes-crud.destroy',
+    ]);
+    Route::patch('notes-crud/bulk-update-status', [App\Http\Controllers\Admin\NoteController::class, 'bulkUpdateStatus'])->name('notes-crud.bulk-update-status');
+
+    // Question Management CRUD
+    Route::resource('questions', App\Http\Controllers\Admin\QuestionController::class);
+
+    // Answer Management CRUD
+    Route::resource('answers', App\Http\Controllers\Admin\AnswerController::class);
+    Route::patch('answers/{answer}/toggle-correctness', [App\Http\Controllers\Admin\AnswerController::class, 'toggleCorrectness'])->name('answers.toggle-correctness');
+    Route::patch('answers/bulk-update-correctness', [App\Http\Controllers\Admin\AnswerController::class, 'bulkUpdateCorrectness'])->name('answers.bulk-update-correctness');
+
+    // User Profile Management CRUD
+    Route::resource('user-profiles', App\Http\Controllers\Admin\UserProfileController::class);
+    Route::get('user-profiles-statistics', [App\Http\Controllers\Admin\UserProfileController::class, 'statistics'])->name('user-profiles.statistics');
+
+    // Feedback Management CRUD
+    Route::resource('feedback', App\Http\Controllers\Admin\FeedbackController::class);
+    Route::get('feedback-statistics', [App\Http\Controllers\Admin\FeedbackController::class, 'statistics'])->name('feedback.statistics');
+    Route::delete('feedback/bulk-delete', [App\Http\Controllers\Admin\FeedbackController::class, 'bulkDelete'])->name('feedback.bulk-delete');
 });

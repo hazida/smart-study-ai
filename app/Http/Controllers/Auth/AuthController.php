@@ -30,26 +30,20 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        // Simple demo authentication - in production, use proper database authentication
-        $demoUsers = [
-            'admin@questioncraft.com' => 'password123',
-            'demo@questioncraft.com' => 'demo123',
-            'test@questioncraft.com' => 'test123'
-        ];
-
-        if (isset($demoUsers[$credentials['email']]) &&
-            $demoUsers[$credentials['email']] === $credentials['password']) {
-
-            // Store user info in session
-            $request->session()->put('user', [
-                'id' => 1,
-                'name' => 'Demo User',
-                'email' => $credentials['email']
-            ]);
-
+        // Attempt to authenticate user with database
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            return redirect()->intended('/dashboard')->with('success', 'Welcome back!');
+            $user = Auth::user();
+
+            // Store additional user info in session for compatibility
+            $request->session()->put('user', [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email
+            ]);
+
+            return redirect()->intended('/dashboard')->with('success', 'Welcome back, ' . $user->name . '!');
         }
 
         throw ValidationException::withMessages([
@@ -72,7 +66,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'terms' => ['required', 'accepted'],
         ]);
@@ -83,14 +77,24 @@ class AuthController extends Controller
                 ->withInput($request->except('password', 'password_confirmation'));
         }
 
-        // Store user info in session (demo implementation)
-        $request->session()->put('user', [
-            'id' => rand(1000, 9999),
+        // Create user in database
+        $user = User::create([
             'name' => $request->name,
-            'email' => $request->email
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
         ]);
 
-        return redirect('/dashboard')->with('success', 'Account created successfully! Welcome to QuestionCraft.');
+        // Log the user in
+        Auth::login($user);
+
+        // Store user info in session for compatibility
+        $request->session()->put('user', [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email
+        ]);
+
+        return redirect('/dashboard')->with('success', 'Account created successfully! Welcome to QuestionCraft, ' . $user->name . '.');
     }
 
     /**
@@ -98,6 +102,8 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        Auth::logout();
+
         $request->session()->forget('user');
         $request->session()->invalidate();
         $request->session()->regenerateToken();

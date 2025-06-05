@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class SessionAuth
@@ -15,8 +16,19 @@ class SessionAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->session()->has('user')) {
+        // Check both Laravel Auth and session for backward compatibility
+        if (!Auth::check() && !$request->session()->has('user')) {
             return redirect()->route('login');
+        }
+
+        // If user is authenticated via Laravel Auth but not in session, sync it
+        if (Auth::check() && !$request->session()->has('user')) {
+            $user = Auth::user();
+            $request->session()->put('user', [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email
+            ]);
         }
 
         return $next($request);

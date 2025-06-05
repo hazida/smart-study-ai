@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class SessionGuest
@@ -15,7 +16,8 @@ class SessionGuest
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->session()->has('user')) {
+        // Check both Laravel Auth and session
+        if (Auth::check() || $request->session()->has('user')) {
             return redirect('/dashboard');
         }
 
