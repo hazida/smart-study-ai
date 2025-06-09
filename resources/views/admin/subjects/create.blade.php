@@ -1,4 +1,4 @@
-@extends('layouts.admin-master')
+@extends('layouts.admin')
 
 @section('title', 'Create New Subject')
 @section('page-title', 'Create Subject')

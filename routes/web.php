@@ -39,7 +39,7 @@ Route::get('/quick-login', function () {
             'role' => $user->role
         ]);
 
-        return redirect('/admin-test')->with('success', 'Logged in successfully as ' . $user->name);
+        return redirect()->route('admin.dashboard')->with('success', 'Logged in successfully as ' . $user->name);
     } else {
         return redirect('/admin-test')->with('error', 'Login failed');
     }
@@ -336,8 +336,11 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
             'support_tickets' => 3,
         ];
 
-        return view('admin.dashboard', compact('stats', 'recentUsers', 'recentActivity', 'systemHealth', 'chartData', 'performance', 'quickStats'));
-    })->name('dashboard');
+        return view('admin.index', compact('stats', 'recentUsers', 'recentActivity', 'systemHealth', 'chartData', 'performance', 'quickStats'));
+    })->name('index');
+
+    // Main Admin Dashboard with CRUD functionality (using controller)
+    Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
     // Users Management
     Route::get('/users', function () {
@@ -364,19 +367,14 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::get('/analytics', function () {
         return view('admin.analytics');
     })->name('analytics');
-
-    // Dashboard alias route
-    Route::get('/dashboard', function () {
-        return view('admin.main-dashboard');
-    })->name('dashboard');
 });
 
 // Enhanced Admin CRUD Routes (protected by admin middleware)
 Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Enhanced Admin Dashboard
-    Route::get('/enhanced-dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('enhanced.dashboard');
+    // Enhanced Dashboard functionality now integrated into main dashboard
     Route::get('/system-health', [App\Http\Controllers\Admin\DashboardController::class, 'systemHealth'])->name('system-health');
     Route::get('/export-data', [App\Http\Controllers\Admin\DashboardController::class, 'exportData'])->name('export-data');
+    Route::get('/reports', [App\Http\Controllers\Admin\DashboardController::class, 'reports'])->name('reports');
 
     // User Management CRUD
     Route::resource('users-crud', App\Http\Controllers\Admin\UserController::class)->names([

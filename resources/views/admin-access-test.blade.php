@@ -28,13 +28,13 @@
                     
                     <div class="space-y-2">
                         <a href="{{ route('admin.dashboard') }}" class="block w-full bg-blue-600 text-white text-center py-2 px-4 rounded hover:bg-blue-700">
-                            Go to Admin Dashboard
+                            Go to Admin Dashboard (Unified CRUD)
                         </a>
-                        <a href="{{ route('admin.enhanced.dashboard') }}" class="block w-full bg-green-600 text-white text-center py-2 px-4 rounded hover:bg-green-700">
-                            Go to Enhanced Dashboard
-                        </a>
-                        <a href="{{ route('admin.users-crud.index') }}" class="block w-full bg-purple-600 text-white text-center py-2 px-4 rounded hover:bg-purple-700">
+                        <a href="{{ route('admin.users-crud.index') }}" class="block w-full bg-green-600 text-white text-center py-2 px-4 rounded hover:bg-green-700">
                             Go to User Management
+                        </a>
+                        <a href="{{ route('admin.subjects.index') }}" class="block w-full bg-purple-600 text-white text-center py-2 px-4 rounded hover:bg-purple-700">
+                            Go to Subject Management
                         </a>
                     </div>
                 @else

@@ -1,4 +1,4 @@
-@extends('layouts.admin-master')
+@extends('layouts.admin')
 
 @section('title', 'Subject Management')
 
@@ -16,7 +16,7 @@
                     <a href="{{ route('admin.subjects.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                         <i class="fas fa-plus mr-2"></i>Add New Subject
                     </a>
-                    <a href="{{ route('admin.enhanced.dashboard') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                    <a href="{{ route('admin.dashboard') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
                         <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
                     </a>
                 </div>

@@ -3,198 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Admin Dashboard') - QuestionGen</title>
+    <title>@yield('title', 'Admin Dashboard') - QuestionCraft</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                }
-            }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .sidebar-transition { transition: transform 0.3s ease-in-out; }
+
+        /* Ensure proper sidebar layout */
+        .admin-sidebar {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+        /* Smooth scrolling for navigation */
+        .admin-nav {
+            scrollbar-width: thin;
+            scrollbar-color: #e5e7eb #f9fafb;
+        }
+
+        .admin-nav::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .admin-nav::-webkit-scrollbar-track {
+            background: #f9fafb;
+        }
+
+        .admin-nav::-webkit-scrollbar-thumb {
+            background: #e5e7eb;
+            border-radius: 3px;
+        }
+
+        .admin-nav::-webkit-scrollbar-thumb:hover {
+            background: #d1d5db;
+        }
+    </style>
 </head>
-<body class="bg-slate-50 font-sans">
-    <div class="min-h-screen flex">
+<body class="bg-gray-50" x-data="{ sidebarOpen: false }">
+    <div class="flex h-screen">
         <!-- Sidebar -->
-        <div class="hidden lg:flex lg:flex-shrink-0">
-            <div class="flex flex-col w-64">
-                <div class="flex flex-col flex-grow bg-slate-900 pt-5 pb-4 overflow-y-auto">
-                    <!-- Logo -->
-                    <div class="flex items-center flex-shrink-0 px-4">
-                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                            <span class="text-white font-bold text-sm">Q</span>
-                        </div>
-                        <span class="ml-3 text-white text-lg font-semibold">Admin Panel</span>
+        <div class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform lg:translate-x-0 lg:static lg:inset-0 sidebar-transition admin-sidebar"
+             :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }"
+             x-cloak>
+
+            <!-- Sidebar Header -->
+            <div class="flex items-center justify-between h-16 px-6 bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg flex-shrink-0">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-graduation-cap text-white text-lg"></i>
                     </div>
+                    <div>
+                        <h1 class="text-white text-lg font-bold">QuestionCraft</h1>
+                        <p class="text-blue-100 text-xs">Admin Panel</p>
+                    </div>
+                </div>
+                <button @click="sidebarOpen = false" class="lg:hidden text-white hover:text-blue-200 transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
 
-                    <!-- Navigation -->
-                    <nav class="mt-8 flex-1 px-2 space-y-1">
-                        <a href="{{ route('admin.dashboard') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
-                            <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z"></path>
-                            </svg>
-                            Dashboard
-                        </a>
+            <!-- Navigation Menu -->
+            <nav class="flex-1 mt-6 px-3 overflow-y-auto admin-nav">
+                <!-- Dashboard Section -->
+                <div class="mb-8">
+                    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Overview</h3>
+                    <a href="{{ route('admin.dashboard') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-tachometer-alt mr-3 w-5 text-center"></i>
+                        <span>Main Dashboard</span>
+                    </a>
+                    <a href="{{ route('admin.analytics') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('admin.analytics') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-chart-line mr-3 w-5 text-center"></i>
+                        <span>Analytics</span>
+                    </a>
+                </div>
 
-                        <a href="{{ route('admin.users') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200 {{ request()->routeIs('admin.users') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
-                            <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-                            </svg>
-                            Users
-                        </a>
+                <!-- User Management Section -->
+                <div class="mb-8">
+                    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">User Management</h3>
+                    <a href="{{ route('admin.users-crud.index') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('admin.users-crud.*') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-users mr-3 w-5 text-center"></i>
+                        <span class="flex-1">Users</span>
+                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">{{ \App\Models\User::count() }}</span>
+                    </a>
+                    <a href="{{ route('admin.user-profiles.index') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('admin.user-profiles.*') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-id-card mr-3 w-5 text-center"></i>
+                        <span>Profiles</span>
+                    </a>
+                </div>
 
-                        <a href="{{ route('admin.analytics') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200 {{ request()->routeIs('admin.analytics') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
-                            <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
-                            Analytics
-                        </a>
+                <!-- Content Management Section -->
+                <div class="mb-8">
+                    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Content Management</h3>
+                    <a href="{{ route('admin.subjects.index') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('admin.subjects.*') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-book mr-3 w-5 text-center"></i>
+                        <span class="flex-1">Subjects</span>
+                        <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">{{ \App\Models\Subject::count() }}</span>
+                    </a>
+                    <a href="{{ route('admin.notes-crud.index') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('admin.notes-crud.*') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-sticky-note mr-3 w-5 text-center"></i>
+                        <span class="flex-1">Notes</span>
+                        <span class="ml-2 bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full font-medium">{{ \App\Models\Note::count() }}</span>
+                    </a>
+                </div>
 
-                        <a href="{{ route('admin.settings') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200 {{ request()->routeIs('admin.settings') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
-                            <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                            Settings
-                        </a>
+                <!-- Q&A System Section -->
+                <div class="mb-8">
+                    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Q&A System</h3>
+                    <a href="{{ route('admin.questions.index') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('admin.questions.*') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-question-circle mr-3 w-5 text-center"></i>
+                        <span class="flex-1">Questions</span>
+                        <span class="ml-2 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">{{ \App\Models\Question::count() }}</span>
+                    </a>
+                    <a href="{{ route('admin.answers.index') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('admin.answers.*') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-check-circle mr-3 w-5 text-center"></i>
+                        <span class="flex-1">Answers</span>
+                        <span class="ml-2 bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full font-medium">{{ \App\Models\Answer::count() }}</span>
+                    </a>
+                    <a href="{{ route('admin.feedback.index') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('admin.feedback.*') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-comments mr-3 w-5 text-center"></i>
+                        <span class="flex-1">Feedback</span>
+                        <span class="ml-2 bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full font-medium">{{ \App\Models\Feedback::count() }}</span>
+                    </a>
+                </div>
 
-                        <!-- Divider -->
-                        <div class="border-t border-slate-700 my-4"></div>
+                <!-- System & Tools Section -->
+                <div class="mb-6">
+                    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">System & Tools</h3>
+                    <a href="{{ route('admin.system-health') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('admin.system-health') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-heartbeat mr-3 w-5 text-center"></i>
+                        <span>System Health</span>
+                    </a>
+                    <a href="{{ route('admin.reports') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('admin.reports') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-chart-bar mr-3 w-5 text-center"></i>
+                        <span>Reports</span>
+                    </a>
+                    <a href="{{ route('admin.export-data') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+                        <i class="fas fa-download mr-3 w-5 text-center"></i>
+                        <span>Export Data</span>
+                    </a>
+                    <a href="{{ route('admin.settings') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('admin.settings') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-cog mr-3 w-5 text-center"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
 
-                        <a href="{{ route('dashboard') }}" class="group flex items-center px-2 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white rounded-md transition-colors duration-200">
-                            <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m0 7h18"></path>
-                            </svg>
-                            Back to App
-                        </a>
-                    </nav>
+            <!-- User Info at Bottom -->
+            <div class="flex-shrink-0 p-4 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-md">
+                        <span class="text-sm font-bold text-white">{{ substr(session('user.name', 'A'), 0, 1) }}</span>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <p class="text-sm font-semibold text-gray-800">{{ session('user.name', 'Admin User') }}</p>
+                        <p class="text-xs text-gray-600 flex items-center">
+                            <span class="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                            Administrator
+                        </p>
+                    </div>
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-white rounded-lg transition-all duration-200">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div x-show="open" @click.away="open = false" x-cloak
+                             class="absolute bottom-full right-0 mb-2 w-52 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                            <div class="px-4 py-2 border-b border-gray-100">
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Quick Actions</p>
+                            </div>
+                            <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200">
+                                <i class="fas fa-home mr-3 w-4 text-center"></i>User Dashboard
+                            </a>
+                            <a href="{{ route('admin.settings') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200">
+                                <i class="fas fa-cog mr-3 w-4 text-center"></i>Admin Settings
+                            </a>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <form action="{{ route('logout') }}" method="POST" class="block">
+                                @csrf
+                                <button type="submit" class="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200">
+                                    <i class="fas fa-sign-out-alt mr-3 w-4 text-center"></i>Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main content -->
-        <div class="flex flex-col flex-1 overflow-hidden">
-            <!-- Top navigation -->
-            <header class="bg-white shadow-sm border-b border-slate-200">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex justify-between items-center py-4">
-                        <!-- Mobile menu button -->
-                        <div class="flex items-center lg:hidden">
-                            <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500" onclick="toggleMobileMenu()">
-                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                                </svg>
-                            </button>
-                            <span class="ml-3 text-lg font-semibold text-slate-900">Admin Panel</span>
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden lg:ml-0">
+            <!-- Top Navigation Bar (Mobile) -->
+            <header class="bg-white shadow-md border-b border-gray-200 lg:hidden">
+                <div class="flex items-center justify-between h-16 px-4">
+                    <button @click="sidebarOpen = true" class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200">
+                        <i class="fas fa-bars text-lg"></i>
+                    </button>
+                    <div class="flex items-center">
+                        <div class="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md flex items-center justify-center mr-2">
+                            <i class="fas fa-graduation-cap text-white text-xs"></i>
                         </div>
-
-                        <!-- Page title -->
-                        <div class="hidden lg:block">
-                            <h1 class="text-2xl font-semibold text-slate-900">@yield('page-title', 'Dashboard')</h1>
-                        </div>
-
-                        <!-- User menu -->
-                        <div class="flex items-center space-x-4">
-                            <!-- Notifications -->
-                            <button class="p-2 text-slate-400 hover:text-slate-500 hover:bg-slate-100 rounded-lg transition-colors duration-200">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4.868 19.718c.64.64 1.673.64 2.313 0l8.485-8.485c.64-.64.64-1.673 0-2.313l-8.485-8.485c-.64-.64-1.673-.64-2.313 0l-8.485 8.485c-.64.64-.64 1.673 0 2.313l8.485 8.485z"></path>
-                                </svg>
-                            </button>
-
-                            <!-- User dropdown -->
-                            <div class="relative">
-                                <button class="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200" onclick="toggleUserDropdown()">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                                        <span class="text-white text-sm font-medium">{{ substr(session('user.name'), 0, 1) }}</span>
-                                    </div>
-                                    <div class="hidden sm:block text-left">
-                                        <p class="text-sm font-medium text-slate-700">{{ session('user.name') }}</p>
-                                        <p class="text-xs text-slate-500">Administrator</p>
-                                    </div>
-                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </button>
-
-                                <!-- Dropdown menu -->
-                                <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-50">
-                                    <div class="py-1">
-                                        <a href="{{ route('profile.settings') }}" class="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
-                                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                            </svg>
-                                            Profile Settings
-                                        </a>
-                                        <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
-                                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
-                                            </svg>
-                                            User Dashboard
-                                        </a>
-                                        <div class="border-t border-slate-100"></div>
-                                        <a href="{{ route('logout') }}" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                                            </svg>
-                                            Sign Out
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <h1 class="text-lg font-bold text-gray-900">@yield('page-title', 'Admin Panel')</h1>
+                    </div>
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                        <span class="text-xs font-bold text-white">{{ substr(session('user.name', 'A'), 0, 1) }}</span>
                     </div>
                 </div>
             </header>
 
-            <!-- Mobile menu -->
-            <div id="mobile-menu" class="hidden lg:hidden bg-slate-900">
-                <nav class="px-2 pt-2 pb-3 space-y-1">
-                    <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 text-base font-medium rounded-md {{ request()->routeIs('admin.dashboard') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">Dashboard</a>
-                    <a href="{{ route('admin.users') }}" class="block px-3 py-2 text-base font-medium rounded-md {{ request()->routeIs('admin.users') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">Users</a>
-                    <a href="{{ route('admin.analytics') }}" class="block px-3 py-2 text-base font-medium rounded-md {{ request()->routeIs('admin.analytics') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">Analytics</a>
-                    <a href="{{ route('admin.settings') }}" class="block px-3 py-2 text-base font-medium rounded-md {{ request()->routeIs('admin.settings') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">Settings</a>
-                    <div class="border-t border-slate-700 my-2"></div>
-                    <a href="{{ route('dashboard') }}" class="block px-3 py-2 text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white rounded-md">Back to App</a>
-                </nav>
+            <!-- Flash Messages -->
+            @if(session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mx-4 mt-4" role="alert">
+                <span class="block sm:inline">{{ session('success') }}</span>
+                <span class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.style.display='none'">
+                    <i class="fas fa-times cursor-pointer"></i>
+                </span>
             </div>
+            @endif
 
-            <!-- Page content -->
+            @if(session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mx-4 mt-4" role="alert">
+                <span class="block sm:inline">{{ session('error') }}</span>
+                <span class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.style.display='none'">
+                    <i class="fas fa-times cursor-pointer"></i>
+                </span>
+            </div>
+            @endif
+
+            @if($errors->any())
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mx-4 mt-4" role="alert">
+                <div class="font-bold">Please fix the following errors:</div>
+                <ul class="mt-2">
+                    @foreach($errors->all() as $error)
+                    <li>• {{ $error }}</li>
+                    @endforeach
+                </ul>
+                <span class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.style.display='none'">
+                    <i class="fas fa-times cursor-pointer"></i>
+                </span>
+            </div>
+            @endif
+
+            <!-- Main Content -->
             <main class="flex-1 overflow-y-auto">
                 @yield('content')
             </main>
+
+            <!-- Footer -->
+            <footer class="bg-white border-t border-gray-200 px-4 py-3">
+                <div class="flex justify-between items-center text-sm text-gray-500">
+                    <div>
+                        © {{ date('Y') }} QuestionCraft. All rights reserved.
+                    </div>
+                    <div class="flex space-x-4">
+                        <a href="#" class="hover:text-gray-700">Documentation</a>
+                        <a href="#" class="hover:text-gray-700">Support</a>
+                        <a href="#" class="hover:text-gray-700">API</a>
+                    </div>
+                </div>
+            </footer>
         </div>
     </div>
 
+    <!-- Overlay for mobile sidebar -->
+    <div x-show="sidebarOpen" @click="sidebarOpen = false" 
+         class="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden" x-cloak></div>
+
     <!-- Scripts -->
     <script>
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        }
-
-        function toggleUserDropdown() {
-            const dropdown = document.getElementById('user-dropdown');
-            dropdown.classList.toggle('hidden');
-        }
-
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function(event) {
-            const userDropdown = document.getElementById('user-dropdown');
-            const userButton = event.target.closest('[onclick="toggleUserDropdown()"]');
-            
-            if (!userButton && !userDropdown.contains(event.target)) {
-                userDropdown.classList.add('hidden');
-            }
-        });
+        // Auto-hide flash messages after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('[role="alert"]');
+            alerts.forEach(function(alert) {
+                alert.style.display = 'none';
+            });
+        }, 5000);
     </script>
 
-    @stack('scripts')
+    @yield('scripts')
 </body>
 </html>
