@@ -54,6 +54,9 @@ class User extends Authenticatable
         'role',
         'is_active',
         'last_login_at',
+        'google_id',
+        'avatar',
+        'email_verified_at',
     ];
 
     /**

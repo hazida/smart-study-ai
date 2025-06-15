@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\GoogleController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -51,6 +52,37 @@ Route::middleware('session.guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
+});
+
+// Google OAuth Routes
+Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+
+// Google OAuth Test Route
+Route::get('/test-google-oauth', function () {
+    $config = [
+        'google_client_id' => env('GOOGLE_CLIENT_ID'),
+        'google_client_secret' => env('GOOGLE_CLIENT_SECRET') ? 'Set (hidden)' : 'Not set',
+        'google_redirect_uri' => env('GOOGLE_REDIRECT_URI'),
+        'socialite_installed' => class_exists('Laravel\Socialite\Facades\Socialite'),
+        'google_service_config' => config('services.google'),
+    ];
+
+    return response()->json([
+        'status' => 'Google OAuth Configuration Check',
+        'config' => $config,
+        'routes' => [
+            'auth_google' => route('auth.google'),
+            'auth_callback' => route('auth.google.callback'),
+        ],
+        'ready' => !empty($config['google_client_id']) && !empty(env('GOOGLE_CLIENT_SECRET')),
+    ], 200, [], JSON_PRETTY_PRINT);
+})->name('test.google.oauth');
+
+// Google Account Management (for authenticated users)
+Route::middleware('session.auth')->group(function () {
+    Route::get('/auth/google/link', [GoogleController::class, 'linkGoogleAccount'])->name('auth.google.link');
+    Route::post('/auth/google/unlink', [GoogleController::class, 'unlinkGoogleAccount'])->name('auth.google.unlink');
 });
 
 Route::middleware('session.auth')->group(function () {
