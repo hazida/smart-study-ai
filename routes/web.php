@@ -58,32 +58,10 @@ Route::middleware('session.guest')->group(function () {
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
-// Google OAuth Test Route
-Route::get('/test-google-oauth', function () {
-    $config = [
-        'google_client_id' => env('GOOGLE_CLIENT_ID'),
-        'google_client_secret' => env('GOOGLE_CLIENT_SECRET') ? 'Set (hidden)' : 'Not set',
-        'google_redirect_uri' => env('GOOGLE_REDIRECT_URI'),
-        'socialite_installed' => class_exists('Laravel\Socialite\Facades\Socialite'),
-        'google_service_config' => config('services.google'),
-    ];
 
-    return response()->json([
-        'status' => 'Google OAuth Configuration Check',
-        'config' => $config,
-        'routes' => [
-            'auth_google' => route('auth.google'),
-            'auth_callback' => route('auth.google.callback'),
-        ],
-        'ready' => !empty($config['google_client_id']) && !empty(env('GOOGLE_CLIENT_SECRET')),
-    ], 200, [], JSON_PRETTY_PRINT);
-})->name('test.google.oauth');
 
-// Google Account Management (for authenticated users)
-Route::middleware('session.auth')->group(function () {
-    Route::get('/auth/google/link', [GoogleController::class, 'linkGoogleAccount'])->name('auth.google.link');
-    Route::post('/auth/google/unlink', [GoogleController::class, 'unlinkGoogleAccount'])->name('auth.google.unlink');
-});
+
+
 
 Route::middleware('session.auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -417,7 +395,7 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
         'edit' => 'users-crud.edit',
         'update' => 'users-crud.update',
         'destroy' => 'users-crud.destroy',
-    ]);
+    ])->parameters(['users-crud' => 'user']);
     Route::patch('users-crud/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users-crud.toggle-status');
 
     // Subject Management CRUD
@@ -445,11 +423,20 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::patch('answers/bulk-update-correctness', [App\Http\Controllers\Admin\AnswerController::class, 'bulkUpdateCorrectness'])->name('answers.bulk-update-correctness');
 
     // User Profile Management CRUD
-    Route::resource('user-profiles', App\Http\Controllers\Admin\UserProfileController::class);
+    Route::resource('user-profiles', App\Http\Controllers\Admin\UserProfileController::class)->parameters(['user-profiles' => 'userProfile']);
     Route::get('user-profiles-statistics', [App\Http\Controllers\Admin\UserProfileController::class, 'statistics'])->name('user-profiles.statistics');
 
     // Feedback Management CRUD
-    Route::resource('feedback', App\Http\Controllers\Admin\FeedbackController::class);
+    Route::resource('feedback', App\Http\Controllers\Admin\FeedbackController::class)->parameters(['feedback' => 'feedback']);
     Route::get('feedback-statistics', [App\Http\Controllers\Admin\FeedbackController::class, 'statistics'])->name('feedback.statistics');
     Route::delete('feedback/bulk-delete', [App\Http\Controllers\Admin\FeedbackController::class, 'bulkDelete'])->name('feedback.bulk-delete');
+});
+// PDF Upload and Question Generation Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/pdf-upload', [App\Http\Controllers\PdfUploadController::class, 'index'])->name('pdf-upload.index');
+    Route::post('/pdf-upload', [App\Http\Controllers\PdfUploadController::class, 'upload'])->name('pdf-upload.upload');
+    Route::get('/pdf-upload/list', [App\Http\Controllers\PdfUploadController::class, 'list'])->name('pdf-upload.list');
+    Route::get('/pdf-upload/{noteId}/result', [App\Http\Controllers\PdfUploadController::class, 'result'])->name('pdf-upload.result');
+    Route::get('/pdf-upload/{noteId}/download', [App\Http\Controllers\PdfUploadController::class, 'download'])->name('pdf-upload.download');
+    Route::delete('/pdf-upload/{noteId}', [App\Http\Controllers\PdfUploadController::class, 'delete'])->name('pdf-upload.delete');
 });

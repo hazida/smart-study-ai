@@ -113,6 +113,12 @@
                         <span class="flex-1">Notes</span>
                         <span class="ml-2 bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full font-medium">{{ \App\Models\Note::count() }}</span>
                     </a>
+                    <a href="{{ route('pdf-upload.index') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('pdf-upload.*') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-file-pdf mr-3 w-5 text-center"></i>
+                        <span class="flex-1">PDF Upload</span>
+                        <span class="ml-2 bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-medium">{{ \App\Models\Note::whereNotNull('file_path')->count() }}</span>
+                    </a>
                 </div>
 
                 <!-- Q&A System Section -->
@@ -135,6 +141,22 @@
                         <i class="fas fa-comments mr-3 w-5 text-center"></i>
                         <span class="flex-1">Feedback</span>
                         <span class="ml-2 bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full font-medium">{{ \App\Models\Feedback::count() }}</span>
+                    </a>
+                </div>
+
+                <!-- AI Tools Section -->
+                <div class="mb-8">
+                    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">AI Tools</h3>
+                    <a href="{{ route('pdf-upload.index') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('pdf-upload.index') || request()->routeIs('pdf-upload.create') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-magic mr-3 w-5 text-center"></i>
+                        <span>Question Generator</span>
+                    </a>
+                    <a href="{{ route('pdf-upload.list') }}"
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('pdf-upload.list') || request()->routeIs('pdf-upload.result') || request()->routeIs('pdf-upload.show') ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-file-pdf mr-3 w-5 text-center"></i>
+                        <span class="flex-1">PDF Library</span>
+                        <span class="ml-2 bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-medium">{{ \App\Models\Note::whereNotNull('file_path')->count() }}</span>
                     </a>
                 </div>
 
