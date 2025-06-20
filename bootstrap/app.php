@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'session.auth' => \App\Http\Middleware\SessionAuth::class,
             'session.guest' => \App\Http\Middleware\SessionGuest::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'teacher.admin' => \App\Http\Middleware\TeacherAdminMiddleware::class,
+            'parent' => \App\Http\Middleware\ParentMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

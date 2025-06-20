@@ -39,8 +39,10 @@ class AuthController extends Controller
             // Store additional user info in session for compatibility
             $request->session()->put('user', [
                 'id' => $user->id,
+                'user_id' => $user->user_id,
                 'name' => $user->name,
-                'email' => $user->email
+                'email' => $user->email,
+                'role' => $user->role
             ]);
 
             return redirect()->intended('/dashboard')->with('success', 'Welcome back, ' . $user->name . '!');
@@ -90,11 +92,13 @@ class AuthController extends Controller
         // Store user info in session for compatibility
         $request->session()->put('user', [
             'id' => $user->id,
+            'user_id' => $user->user_id,
             'name' => $user->name,
-            'email' => $user->email
+            'email' => $user->email,
+            'role' => $user->role
         ]);
 
-        return redirect('/dashboard')->with('success', 'Account created successfully! Welcome to QuestionCraft, ' . $user->name . '.');
+        return redirect('/dashboard')->with('success', 'Account created successfully! Welcome to Smart Study, ' . $user->name . '.');
     }
 
     /**

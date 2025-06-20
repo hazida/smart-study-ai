@@ -461,7 +461,7 @@
         <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h4 class="text-lg font-semibold text-gray-900 mb-1">QuestionCraft Admin Dashboard</h4>
+                    <h4 class="text-lg font-semibold text-gray-900 mb-1">Smart Study Admin Dashboard</h4>
                     <p class="text-sm text-gray-600">
                         Complete administrative control panel with real-time monitoring and management capabilities
                     </p>

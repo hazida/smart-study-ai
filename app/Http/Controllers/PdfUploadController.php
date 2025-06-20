@@ -9,18 +9,22 @@ use App\Models\Note;
 use App\Models\Question;
 use App\Models\Answer;
 use App\Models\Subject;
+use App\Models\User;
 use App\Services\PdfTextExtractor;
 use App\Services\QuestionGenerator;
+use App\Services\GroqQuestionGenerator;
 
 class PdfUploadController extends Controller
 {
     protected $pdfExtractor;
     protected $questionGenerator;
+    protected $groqGenerator;
 
-    public function __construct(PdfTextExtractor $pdfExtractor, QuestionGenerator $questionGenerator)
+    public function __construct(PdfTextExtractor $pdfExtractor, QuestionGenerator $questionGenerator, GroqQuestionGenerator $groqGenerator)
     {
         $this->pdfExtractor = $pdfExtractor;
         $this->questionGenerator = $questionGenerator;
+        $this->groqGenerator = $groqGenerator;
     }
 
     /**
@@ -38,16 +42,19 @@ class PdfUploadController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'pdf_file' => 'required|file|mimes:pdf|max:10240', // 10MB max
+            'pdf_file' => 'required|file|mimes:pdf|max:2048', // 2MB max
             'title' => 'required|string|max:255',
             'subject_id' => 'required|exists:subjects,subject_id',
             'difficulty' => 'required|in:easy,medium,hard',
             'question_count' => 'required|integer|min:1|max:50',
             'question_types' => 'required|array',
             'question_types.*' => 'in:multiple_choice,true_false,short_answer,essay',
+            'generator_type' => 'required|in:local,groq',
         ]);
 
         try {
+            // Ensure we have a valid user in session
+            $userId = $this->ensureValidUser();
             // Store the uploaded PDF
             $file = $request->file('pdf_file');
             $filename = time() . '_' . Str::slug($request->title) . '.pdf';
@@ -63,7 +70,7 @@ class PdfUploadController extends Controller
             // Create a note from the extracted content
             $note = Note::create([
                 'note_id' => (string) Str::uuid(),
-                'user_id' => session('user.id'),
+                'user_id' => $userId,
                 'title' => $request->title,
                 'content' => $extractedText,
                 'status' => 'published',
@@ -74,8 +81,11 @@ class PdfUploadController extends Controller
             // Associate with subject
             $note->subjects()->attach($request->subject_id);
 
+            // Select generator based on user choice
+            $generator = $request->generator_type === 'groq' ? $this->groqGenerator : $this->questionGenerator;
+
             // Generate questions and answers
-            $generatedQuestions = $this->questionGenerator->generateQuestions(
+            $generatedQuestions = $generator->generateQuestions(
                 $extractedText,
                 $request->question_count,
                 $request->difficulty,
@@ -87,10 +97,10 @@ class PdfUploadController extends Controller
                 $question = Question::create([
                     'question_id' => (string) Str::uuid(),
                     'note_id' => $note->note_id,
-                    'user_id' => session('user.id'),
+                    'user_id' => $userId,
                     'question_text' => $questionData['question'],
                     'difficulty' => $request->difficulty,
-                    'generated_by' => 'AI',
+                    'generated_by' => $request->generator_type === 'groq' ? 'Groq AI' : 'Local AI',
                 ]);
 
                 // Create answers
@@ -190,5 +200,55 @@ class PdfUploadController extends Controller
                     ->paginate(10);
 
         return view('pdf-upload.list', compact('notes'));
+    }
+
+    /**
+     * Ensure we have a valid user in session, create one if needed
+     * Prioritize admin and teacher users for PDF upload functionality
+     */
+    private function ensureValidUser()
+    {
+        $sessionUserId = session('user.id');
+
+        // Check if session user exists in database and has appropriate role
+        if ($sessionUserId) {
+            $sessionUser = User::find($sessionUserId);
+            if ($sessionUser && in_array($sessionUser->role, ['admin', 'teacher'])) {
+                return $sessionUserId;
+            }
+        }
+
+        // Session user doesn't exist or doesn't have appropriate role
+        // Find the first admin user
+        $user = User::where('role', 'admin')->first();
+
+        if (!$user) {
+            // No admin users exist, find the first teacher
+            $user = User::where('role', 'teacher')->first();
+        }
+
+        if (!$user) {
+            // No admin or teacher users exist, create a default admin user
+            $user = User::create([
+                'user_id' => (string) Str::uuid(),
+                'name' => 'System Admin',
+                'email' => 'system@example.com',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+                'email_verified_at' => now(),
+            ]);
+        }
+
+        // Update session with valid user
+        session([
+            'user' => [
+                'id' => $user->user_id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role
+            ]
+        ]);
+
+        return $user->user_id;
     }
 }

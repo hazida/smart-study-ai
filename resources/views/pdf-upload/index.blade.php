@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Upload PDF & Generate Questions')
+@section('title', 'PDF Question Generator')
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
@@ -46,7 +46,7 @@
                                     </label>
                                     <input type="file" name="pdf_file" id="pdf_file" accept=".pdf" required class="hidden">
                                 </div>
-                                <p class="text-sm text-gray-500">PDF files up to 10MB</p>
+                                <p class="text-sm text-gray-500">PDF files up to 2MB</p>
                             </div>
                         </div>
                         @error('pdf_file')
@@ -171,6 +171,72 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                         <p class="mt-2 text-sm text-gray-500">Select at least one question type</p>
+                    </div>
+
+                    <!-- Question Generator Selection -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Question Generator *</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+                                <div class="flex items-center mb-3">
+                                    <input type="radio" name="generator_type" value="local" id="generator_local"
+                                           {{ old('generator_type', 'local') === 'local' ? 'checked' : '' }}
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                    <label for="generator_local" class="ml-2 block text-sm font-medium text-gray-900">
+                                        Local Generator
+                                    </label>
+                                    <span class="ml-auto bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Fast</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-2">Built-in question generator with pattern-based analysis</p>
+                                <div class="text-xs text-gray-500">
+                                    <div class="flex items-center mb-1">
+                                        <i class="fas fa-check text-green-500 mr-1"></i>
+                                        <span>Fast generation</span>
+                                    </div>
+                                    <div class="flex items-center mb-1">
+                                        <i class="fas fa-check text-green-500 mr-1"></i>
+                                        <span>No API costs</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check text-green-500 mr-1"></i>
+                                        <span>Offline capability</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+                                <div class="flex items-center mb-3">
+                                    <input type="radio" name="generator_type" value="groq" id="generator_groq"
+                                           {{ old('generator_type') === 'groq' ? 'checked' : '' }}
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                    <label for="generator_groq" class="ml-2 block text-sm font-medium text-gray-900">
+                                        Groq AI Generator
+                                    </label>
+                                    <span class="ml-auto bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">AI Powered</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-2">Advanced AI-powered question generator using Groq's language models</p>
+                                <div class="text-xs text-gray-500">
+                                    <div class="flex items-center mb-1">
+                                        <i class="fas fa-check text-green-500 mr-1"></i>
+                                        <span>Advanced AI analysis</span>
+                                    </div>
+                                    <div class="flex items-center mb-1">
+                                        <i class="fas fa-check text-green-500 mr-1"></i>
+                                        <span>Natural language understanding</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check text-green-500 mr-1"></i>
+                                        <span>High-quality output</span>
+                                    </div>
+                                </div>
+                                <div id="groq-status" class="mt-2 text-xs">
+                                    <span class="text-gray-500">Checking API status...</span>
+                                </div>
+                            </div>
+                        </div>
+                        @error('generator_type')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Advanced Settings -->
@@ -495,5 +561,58 @@
 
     difficultySelect.addEventListener('change', updateQuestionCountSuggestion);
     updateQuestionCountSuggestion(); // Initial call
+
+    // Check Groq API status
+    async function checkGroqStatus() {
+        const statusElement = document.getElementById('groq-status');
+        const groqRadio = document.getElementById('generator_groq');
+        const groqContainer = groqRadio.parentElement.parentElement;
+
+        try {
+            // Check if CSRF token exists
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfToken) {
+                throw new Error('CSRF token not found');
+            }
+
+            const response = await fetch('/api/question-generator/test', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ generator_type: 'groq' })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success && data.results && data.results.groq && data.results.groq.success) {
+                statusElement.innerHTML = '<span class="text-green-600"><i class="fas fa-check-circle mr-1"></i>API Connected</span>';
+                groqRadio.disabled = false;
+                groqContainer.classList.remove('opacity-50');
+            } else {
+                const errorMsg = data.results?.groq?.message || 'API not available';
+                statusElement.innerHTML = `<span class="text-red-600"><i class="fas fa-exclamation-circle mr-1"></i>${errorMsg}</span>`;
+                groqRadio.disabled = true;
+                groqContainer.classList.add('opacity-50');
+            }
+        } catch (error) {
+            console.error('Groq status check failed:', error);
+            statusElement.innerHTML = '<span class="text-red-600"><i class="fas fa-exclamation-circle mr-1"></i>Connection Error</span>';
+            groqRadio.disabled = true;
+            groqContainer.classList.add('opacity-50');
+
+            // If Groq is disabled, ensure Local is selected
+            document.getElementById('generator_local').checked = true;
+        }
+    }
+
+    // Check status on page load
+    checkGroqStatus();
 </script>
 @endsection

@@ -8,6 +8,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
+
 // Admin Access Test Route
 Route::get('/admin-test', function () {
     return view('admin-access-test');
@@ -29,7 +31,7 @@ Route::get('/debug-auth', function () {
 
 // Quick Login Test Route
 Route::get('/quick-login', function () {
-    $credentials = ['email' => 'admin@questioncraft.com', 'password' => 'password'];
+    $credentials = ['email' => 'admin@smartstudy.com', 'password' => 'password'];
 
     if (Auth::attempt($credentials)) {
         $user = Auth::user();
@@ -65,14 +67,41 @@ Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallb
 
 Route::middleware('session.auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout.get');
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        $user = auth()->user();
+        $recentNotes = [];
+
+        // Get recent notes for students
+        if ($user && $user->role === 'student') {
+            $recentNotes = App\Models\Note::where('user_id', $user->user_id)
+                                         ->orderBy('created_at', 'desc')
+                                         ->limit(5)
+                                         ->get();
+        }
+
+        return view('dashboard', compact('recentNotes'));
     })->name('dashboard');
 
     // Profile Settings Routes
     Route::get('/profile', function () {
         return view('profile.settings');
     })->name('profile.settings');
+
+    // AI Chat Routes (Students only)
+    Route::middleware(['session.auth'])->group(function () {
+        Route::get('/ai-chat', [App\Http\Controllers\AiChatController::class, 'index'])->name('ai-chat.index');
+    });
+
+    // Parent Routes (Parents only)
+    Route::middleware(['parent'])->prefix('parent')->name('parent.')->group(function () {
+        Route::get('/children', [App\Http\Controllers\Parent\ParentController::class, 'children'])->name('children');
+        Route::get('/children/{child}/progress', [App\Http\Controllers\Parent\ParentController::class, 'childProgress'])->name('child.progress');
+        Route::get('/reports', [App\Http\Controllers\Parent\ParentController::class, 'reports'])->name('reports');
+        Route::get('/messages', [App\Http\Controllers\Parent\ParentController::class, 'messages'])->name('messages');
+        Route::get('/manage-children', [App\Http\Controllers\Parent\ParentController::class, 'manageChildren'])->name('manage-children');
+        Route::get('/detailed-reports', [App\Http\Controllers\Parent\ParentController::class, 'detailedReports'])->name('detailed-reports');
+    });
 
     Route::post('/profile', function () {
         // Validate the request
@@ -431,12 +460,31 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::get('feedback-statistics', [App\Http\Controllers\Admin\FeedbackController::class, 'statistics'])->name('feedback.statistics');
     Route::delete('feedback/bulk-delete', [App\Http\Controllers\Admin\FeedbackController::class, 'bulkDelete'])->name('feedback.bulk-delete');
 });
-// PDF Upload and Question Generation Routes
-Route::middleware(['auth'])->group(function () {
+// PDF Upload and Question Generation Routes (Admin & Teacher Only)
+Route::middleware(['teacher.admin'])->group(function () {
     Route::get('/pdf-upload', [App\Http\Controllers\PdfUploadController::class, 'index'])->name('pdf-upload.index');
     Route::post('/pdf-upload', [App\Http\Controllers\PdfUploadController::class, 'upload'])->name('pdf-upload.upload');
     Route::get('/pdf-upload/list', [App\Http\Controllers\PdfUploadController::class, 'list'])->name('pdf-upload.list');
     Route::get('/pdf-upload/{noteId}/result', [App\Http\Controllers\PdfUploadController::class, 'result'])->name('pdf-upload.result');
     Route::get('/pdf-upload/{noteId}/download', [App\Http\Controllers\PdfUploadController::class, 'download'])->name('pdf-upload.download');
     Route::delete('/pdf-upload/{noteId}', [App\Http\Controllers\PdfUploadController::class, 'delete'])->name('pdf-upload.delete');
+});
+
+// Question Generator API Routes (Admin & Teacher Only)
+Route::middleware(['teacher.admin'])->prefix('api')->group(function () {
+    Route::get('/question-generator', [App\Http\Controllers\QuestionGeneratorController::class, 'index'])->name('api.question-generator.index');
+    Route::post('/question-generator/generate', [App\Http\Controllers\QuestionGeneratorController::class, 'generate'])->name('api.question-generator.generate');
+    Route::post('/question-generator/compare', [App\Http\Controllers\QuestionGeneratorController::class, 'compare'])->name('api.question-generator.compare');
+    Route::post('/question-generator/test', [App\Http\Controllers\QuestionGeneratorController::class, 'test'])->name('api.question-generator.test');
+    Route::get('/question-generator/available', [App\Http\Controllers\QuestionGeneratorController::class, 'getAvailableGenerators'])->name('api.question-generator.available');
+});
+
+// AI Chat API Routes (Students only)
+Route::middleware(['session.auth'])->prefix('api/ai-chat')->group(function () {
+    Route::post('/summary', [App\Http\Controllers\AiChatController::class, 'getNoteSummary']);
+    Route::post('/answer', [App\Http\Controllers\AiChatController::class, 'answerQuestion']);
+    Route::get('/notes', [App\Http\Controllers\AiChatController::class, 'getUserNotes']);
+    Route::get('/availability', [App\Http\Controllers\AiChatController::class, 'checkAvailability']);
+    Route::get('/suggestions/{noteId}', [App\Http\Controllers\AiChatController::class, 'getSuggestedQuestions']);
+    Route::post('/save-history', [App\Http\Controllers\AiChatController::class, 'saveChatHistory']);
 });
