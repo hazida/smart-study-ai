@@ -23,7 +23,7 @@
                            class="inline-flex items-center bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium">
                             <i class="fas fa-chart-line mr-2"></i>Reports
                         </a>
-                        <a href="{{ route('admin.export-data') }}"
+                        <a href="{{ route('admin.export') }}"
                            class="inline-flex items-center bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium">
                             <i class="fas fa-download mr-2"></i>Export
                         </a>
@@ -358,7 +358,7 @@
                                 <i class="fas fa-heartbeat mr-3 text-indigo-600"></i>System Health
                                 <span class="ml-auto">→</span>
                             </a>
-                            <a href="{{ route('admin.export-data') }}"
+                            <a href="{{ route('admin.export') }}"
                                class="flex items-center w-full px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-all duration-200">
                                 <i class="fas fa-download mr-3 text-indigo-600"></i>Export Data
                                 <span class="ml-auto">→</span>

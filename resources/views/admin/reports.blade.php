@@ -13,7 +13,7 @@
                 <p class="mt-1 text-sm text-gray-600">Comprehensive analytics and statistics for the Smart Study platform</p>
             </div>
             <div class="flex space-x-3">
-                <a href="{{ route('admin.export-data') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <a href="{{ route('admin.export') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                     <i class="fas fa-download mr-2"></i>Export Data
                 </a>
                 <a href="{{ route('admin.dashboard') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">

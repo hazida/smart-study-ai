@@ -74,9 +74,9 @@
                         <h3 class="text-base sm:text-lg font-semibold text-slate-900 ml-3">Create Questions</h3>
                     </div>
                     <p class="text-slate-600 mb-4 text-sm sm:text-base">Upload your content and let AI generate questions automatically.</p>
-                    <button class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium text-sm sm:text-base transform hover:scale-[1.02] active:scale-[0.98]">
+                    <a href="{{ route('pdf-upload.index') }}" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium text-sm sm:text-base transform hover:scale-[1.02] active:scale-[0.98] block text-center">
                         Get Started
-                    </button>
+                    </a>
                 </div>
                 @elseif(session('user.role') === 'student')
                 <!-- AI Study Assistant for Students -->
@@ -140,9 +140,9 @@
                         <h3 class="text-base sm:text-lg font-semibold text-slate-900 ml-3">Question Bank</h3>
                     </div>
                     <p class="text-slate-600 mb-4 text-sm sm:text-base">Browse and manage your saved questions and collections.</p>
-                    <button class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-2.5 px-4 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 font-medium text-sm sm:text-base transform hover:scale-[1.02] active:scale-[0.98]">
+                    <a href="{{ route('admin.questions.index') }}" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-2.5 px-4 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 font-medium text-sm sm:text-base transform hover:scale-[1.02] active:scale-[0.98] block text-center">
                         View Bank
-                    </button>
+                    </a>
                 </div>
                 @elseif(session('user.role') === 'parent')
                 <!-- Student Performance for Parents -->
@@ -206,9 +206,9 @@
                         <h3 class="text-base sm:text-lg font-semibold text-slate-900 ml-3">Analytics</h3>
                     </div>
                     <p class="text-slate-600 mb-4 text-sm sm:text-base">Track performance and insights from your assessments.</p>
-                    <button class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2.5 px-4 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium text-sm sm:text-base transform hover:scale-[1.02] active:scale-[0.98]">
+                    <a href="{{ route('admin.analytics') }}" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2.5 px-4 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium text-sm sm:text-base transform hover:scale-[1.02] active:scale-[0.98] block text-center">
                         View Analytics
-                    </button>
+                    </a>
                 </div>
                 @endif
             </div>
@@ -339,9 +339,9 @@
                         @else
                             <h3 class="text-base sm:text-lg font-medium text-slate-900 mb-2">No activity yet</h3>
                             <p class="text-slate-500 mb-4 text-sm sm:text-base">Start creating questions to see your activity here.</p>
-                            <button class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium text-sm sm:text-base transform hover:scale-[1.02] active:scale-[0.98]">
+                            <a href="{{ route('pdf-upload.index') }}" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium text-sm sm:text-base transform hover:scale-[1.02] active:scale-[0.98] inline-block">
                                 Create Your First Questions
-                            </button>
+                            </a>
                         @endif
                     </div>
                 </div>

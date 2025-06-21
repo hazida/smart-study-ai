@@ -412,6 +412,7 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
 Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
     // Enhanced Dashboard functionality now integrated into main dashboard
     Route::get('/system-health', [App\Http\Controllers\Admin\DashboardController::class, 'systemHealth'])->name('system-health');
+    Route::get('/export', function() { return view('admin.export'); })->name('export');
     Route::get('/export-data', [App\Http\Controllers\Admin\DashboardController::class, 'exportData'])->name('export-data');
     Route::get('/reports', [App\Http\Controllers\Admin\DashboardController::class, 'reports'])->name('reports');
 
@@ -440,7 +441,17 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
         'edit' => 'notes-crud.edit',
         'update' => 'notes-crud.update',
         'destroy' => 'notes-crud.destroy',
-    ]);
+    ])->parameters(['notes-crud' => 'note']);
+
+    // Question generation from notes
+    Route::post('notes-crud/{note}/generate-questions', [App\Http\Controllers\Admin\NoteController::class, 'generateQuestions'])
+         ->name('notes-crud.generate-questions');
+
+    // Question approval/rejection
+    Route::post('questions/approve', [App\Http\Controllers\Admin\NoteController::class, 'approveQuestions'])
+         ->name('questions.approve');
+    Route::post('questions/reject', [App\Http\Controllers\Admin\NoteController::class, 'rejectQuestions'])
+         ->name('questions.reject');
     Route::patch('notes-crud/bulk-update-status', [App\Http\Controllers\Admin\NoteController::class, 'bulkUpdateStatus'])->name('notes-crud.bulk-update-status');
 
     // Question Management CRUD
