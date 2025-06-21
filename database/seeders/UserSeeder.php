@@ -23,6 +23,8 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password123'),
             'role' => 'admin',
             'is_active' => true,
+            'google_id' => null,
+            'avatar' => null,
             'email_verified_at' => now(),
         ]);
 
@@ -35,6 +37,8 @@ class UserSeeder extends Seeder
             'password' => Hash::make('demo123'),
             'role' => 'student',
             'is_active' => true,
+            'google_id' => null,
+            'avatar' => null,
             'email_verified_at' => now(),
         ]);
 
@@ -46,6 +50,8 @@ class UserSeeder extends Seeder
             'password' => Hash::make('test123'),
             'role' => 'student',
             'is_active' => true,
+            'google_id' => null,
+            'avatar' => null,
             'email_verified_at' => now(),
         ]);
 
@@ -57,6 +63,8 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password123'),
             'role' => 'teacher',
             'is_active' => true,
+            'google_id' => null,
+            'avatar' => null,
             'email_verified_at' => now(),
         ]);
 
@@ -68,6 +76,8 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password123'),
             'role' => 'teacher',
             'is_active' => true,
+            'google_id' => null,
+            'avatar' => null,
             'email_verified_at' => now(),
         ]);
 
@@ -79,6 +89,8 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password123'),
             'role' => 'student',
             'is_active' => true,
+            'google_id' => null,
+            'avatar' => null,
             'email_verified_at' => now(),
         ]);
 
@@ -90,6 +102,8 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password123'),
             'role' => 'student',
             'is_active' => true,
+            'google_id' => null,
+            'avatar' => null,
             'email_verified_at' => now(),
         ]);
 
@@ -101,6 +115,8 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password123'),
             'role' => 'parent',
             'is_active' => true,
+            'google_id' => null,
+            'avatar' => null,
             'email_verified_at' => now(),
         ]);
 
